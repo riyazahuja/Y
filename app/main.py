@@ -445,8 +445,8 @@ def main_driver_loop():
         # Repeat the process after a certain interval (e.g., 60 seconds)
     except Exception as e:
         print(f"Error: {e}")
-    print("loop complete, sleeping 45s")
-    time.sleep(45)
+    print("loop complete, sleeping 20s")
+    time.sleep(20)
     main_driver_loop()
 
 
