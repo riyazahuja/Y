@@ -8,7 +8,7 @@ from collections import defaultdict
 import math
 
 # Ratio of AI users to human users
-TARGET_AI_HUMAN_RATIO = 1.5  # Example: 1.5 AI users for every 1 human user
+TARGET_AI_HUMAN_RATIO = 2  # Example: 1.5 AI users for every 1 human user
 
 
 class UserSeed(BaseModel):
@@ -367,73 +367,85 @@ def assign_ai_interactions(tweet_id, human_user_id, num_comments=3, num_likes=5)
 
 def main_driver_loop():
     """Main loop that manages AI posting behavior and interactions."""
+    try:
+        # Maintain the AI-to-human ratio
+        maintain_ai_human_ratio()
+        print("ratio maintained")
+        # Get the most recent human tweets
+        recent_tweets = (
+            supabase.from_("Tweet")
+            .select("id, userId, createdAt")
+            .order("createdAt", desc=True)
+            .limit(10)
+            .execute()
+            .data
+        )
 
-    # Maintain the AI-to-human ratio
-    maintain_ai_human_ratio()
-    print("ratio maintained")
-    # Get the most recent human tweets
-    recent_tweets = (
-        supabase.from_("Tweet")
-        .select("id, userId, createdAt")
-        .order("createdAt", desc=True)
-        .limit(10)
-        .execute()
-        .data
-    )
+        user_ids = [tweet["userId"] for tweet in recent_tweets]
 
-    user_ids = [tweet["userId"] for tweet in recent_tweets]
+        # Fetch the users associated with these user IDs
+        users = (
+            supabase.from_("User")
+            .select("id, provider")
+            .in_("id", user_ids)
+            .execute()
+            .data
+        )
 
-    # Fetch the users associated with these user IDs
-    users = (
-        supabase.from_("User").select("id, provider").in_("id", user_ids).execute().data
-    )
+        # Create a dictionary for easy lookup of user info by userId
+        user_dict = {user["id"]: user for user in users}
 
-    # Create a dictionary for easy lookup of user info by userId
-    user_dict = {user["id"]: user for user in users}
+        # Filter out tweets by AI users
+        filtered_tweets = [
+            tweet
+            for tweet in recent_tweets
+            if user_dict.get(tweet["userId"], {}).get("provider")
+            != "ai"  # or random.random() < 0.4
+        ]
 
-    # Filter out tweets by AI users
-    filtered_tweets = [
-        tweet
-        for tweet in recent_tweets
-        if user_dict.get(tweet["userId"], {}).get("provider")
-        != "ai"  # or random.random() < 0.4
-    ]
+        # num_users = len(supabase.from_("User").select("id").execute().data)
 
-    # num_users = len(supabase.from_("User").select("id").execute().data)
+        # Assign AI interactions to human posts
+        for tweet in filtered_tweets:
+            human_user_id = tweet["userId"]
+            tweet_id = tweet["id"]
+            num_comments = math.floor(random.randint(0, 3) / 3)  # 3-6 comments
+            num_likes = math.floor(random.randint(0, 2) / 2)
+            assign_ai_interactions(tweet_id, human_user_id, num_comments, num_likes)
 
-    # Assign AI interactions to human posts
-    for tweet in filtered_tweets:
-        human_user_id = tweet["userId"]
-        tweet_id = tweet["id"]
-        num_comments = math.floor(random.randint(0, 3) / 3)  # 3-6 comments
-        num_likes = math.floor(random.randint(0, 2) / 2)
-        assign_ai_interactions(tweet_id, human_user_id, num_comments, num_likes)
+        print("interactions completed")
 
-    print("interactions completed")
+        recent_users = get_recent_active_users(limit=10)
 
-    recent_users = get_recent_active_users(limit=10)
+        # Make AI users create posts targeting randomly selected recently active users
+        ai_users = (
+            supabase.from_("User")
+            .select("id")
+            .eq("provider", "ai")
+            .limit(5)
+            .execute()
+            .data
+        )
 
-    # Make AI users create posts targeting randomly selected recently active users
-    ai_users = (
-        supabase.from_("User").select("id").eq("provider", "ai").limit(5).execute().data
-    )
+        ai_user = random.choice(ai_users)
 
-    ai_user = random.choice(ai_users)
+        # AI users post tweets targeting random recently active users
 
-    # AI users post tweets targeting random recently active users
+        target_user = random.choice(recent_users)[0]  # Get the user_id of a recent user
+        post_ai_tweet(ai_user["id"], target_user)
+        print("post completed")
 
-    target_user = random.choice(recent_users)[0]  # Get the user_id of a recent user
-    post_ai_tweet(ai_user["id"], target_user)
-    print("post completed")
+        human_users = (
+            supabase.from_("User").select("id").neq("provider", "ai").execute().data
+        )
+        for human in human_users:
+            analyze_and_update_user_profile(human.get("id", ""))
+        print("Profile updates complete")
 
-    human_users = (
-        supabase.from_("User").select("id").neq("provider", "ai").execute().data
-    )
-    for human in human_users:
-        analyze_and_update_user_profile(human.get("id", ""))
-    print("Profile updates complete")
+        # Repeat the process after a certain interval (e.g., 60 seconds)
+    except Exception as e:
+        print(f"Error: {e}")
     print("loop complete, sleeping 45s")
-    # Repeat the process after a certain interval (e.g., 60 seconds)
     time.sleep(45)
     main_driver_loop()
 
