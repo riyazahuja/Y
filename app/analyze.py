@@ -19,7 +19,7 @@ AYFIE_API_KEY = os.getenv("AYFIE_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
-def get_keywords(text, top_n=5, ngram_range=(1, 1)):
+def get_keywords(text: str, top_n=5, ngram_range=(1, 1)):
     url = "https://portal.ayfie.com/api/keyword"
     headers = {
         "accept": "application/json",
@@ -45,7 +45,7 @@ def get_keywords(text, top_n=5, ngram_range=(1, 1)):
         return keywords
 
     except requests.exceptions.RequestException as e:
-        print(f"Error in analyzing text: {e}")
+        print(f"Error in analyzing text: {e}\n{text} : {type(text)}")
         return {}
 
 

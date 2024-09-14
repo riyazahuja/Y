@@ -312,7 +312,7 @@ def post_ai_tweet(author_user_id, target_user_id):
     content = generate_targeted_content(author_user_id, target_user_id)
 
     # 30% chance to include an image
-    if random.random() < 0.35:
+    if random.random() < 0.25:
         output_path = os.path.join("app", "cache", str(uuid.uuid4()).replace("-", ""))
         generate_image_cheap(content, output_path)
         url = set_image_and_get_url(output_path)
@@ -395,7 +395,8 @@ def main_driver_loop():
     filtered_tweets = [
         tweet
         for tweet in recent_tweets
-        if user_dict.get(tweet["userId"], {}).get("provider") != "ai"
+        if user_dict.get(tweet["userId"], {}).get("provider")
+        != "ai"  # or random.random() < 0.4
     ]
 
     # num_users = len(supabase.from_("User").select("id").execute().data)

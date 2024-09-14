@@ -179,19 +179,22 @@ def analyze_user_profile(user_id):
     user_data = user_response.data
 
     bio = user_data.get("bio", "")
-    profile_image_url = user_data.get("profileImage")
-    path = download_image_from_url(profile_image_url, "app/cache")
 
+    profile_image_url = user_data.get("profileImage")
     profile_keywords = get_keywords(bio)
 
-    profile_image_description = get_image_description_with_cache(path, image_cache)
-
-    return {
+    analysis = {
         "name": user_data.get("name", ""),
         "bio": bio,
         "bio_keywords": profile_keywords,
-        "profile_image_description": profile_image_description,
     }
+
+    if profile_image_url != "" and profile_image_url is not None:
+        path = download_image_from_url(profile_image_url, "app/cache")
+        profile_image_description = get_image_description_with_cache(path, image_cache)
+        analysis["profile_image_description"] = profile_image_description
+
+    return analysis
 
 
 def compile_profile_prompt(analysis, user_profile_analysis):
@@ -218,7 +221,8 @@ def compile_profile_prompt(analysis, user_profile_analysis):
     # Add user profile analysis
     combined_text += f"User Bio: {user_profile_analysis['bio']} \n"
     combined_text += f"User Bio Keywords: {user_profile_analysis['bio_keywords']} \n"
-    combined_text += f"Profile Image Description: {user_profile_analysis['profile_image_description']} \n"
+    if "profile_image_description" in user_profile_analysis.keys():
+        combined_text += f"Profile Image Description: {user_profile_analysis['profile_image_description']} \n"
 
     return combined_text
 

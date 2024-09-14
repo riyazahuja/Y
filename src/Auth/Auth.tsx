@@ -68,9 +68,9 @@ function SignIn() {
                 <div className="flex flex-col gap-5">
                     <TwitterIcon className="w-10 fill-[#1d9bf0] " />
                     <p className="mb-12 text-3xl font-bold">
-                        See what's happening in the world right now
+                        Happening Now.
                     </p>
-                    <p className="text-xl font-semibold"> Join Twitter today.</p>
+                    <p className="text-xl font-semibold"> Join Y Today</p>
                     <button className="w-full rounded-full bg-blue-500 px-5 py-2.5 text-center text-xl font-semibold text-white hover:bg-opacity-[85%] focus:outline-none  focus:ring-4 sm:w-auto">
                         Sign in
                     </button>
