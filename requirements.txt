@@ -22,7 +22,7 @@ multidict==6.1.0
 numpy==1.24.4
 openai==1.45.0
 packaging==24.1
-pandas==2.2.2
+pandas==2.0.3
 pillow==10.4.0
 postgrest==0.16.11
 pydantic==2.9.1
