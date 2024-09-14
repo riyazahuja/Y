@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgres"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String       @id @default(uuid())
+  username         String       @unique
+  name             String?
+  bio              String?      @db.Text
+  website         String?
+  email            String?      @unique
+  provider         String
+  password         String?
+  badge    String?
+  bgImage       String?
+  profileImage      String?
+  createdAt        DateTime     @default(now())
+  followersCount    Int        @default(0)
+  followingCount    Int        @default(0)
+  likeCount    Int        @default(0)
+  tweets           Tweet[]
+  likes            Like[]
+  retweets         Retweet[]
+  replies          Reply[]
+  bookmarks        Bookmark[]
+  messagesSent     Message[]    @relation("sender")
+  messagesReceived Message[]    @relation("recipient")
+  followers        UserFollow[] @relation("follower")
+  following        UserFollow[] @relation("following")
+  userProfileId    String?
+  userProfile      UserProfile?
+}
+
+
+model UserProfile {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  ageGroup         String?  // e.g., '18-25', '25-34'
+  gender           String?  // e.g., 'male', 'female', 'non-binary', etc.
+  race             String?  // e.g., 'Caucasian', 'Asian', 'African American', etc.
+  location         String?  // City, Country, etc.
+  incomeRange      String?  // e.g., '$30,000-$50,000'
+  relationshipStatus String? // e.g., 'single', 'married', etc.
+  education        String? // e.g., 'high school', 'Masters', etc.
+  occupation       String? // e.g., 'Mcdonald's worker', 'VP of customer relations at McKinsey', etc.
+  interests        String[] // e.g., ['technology', 'gaming', 'sports']
+  facts            String[] // e.g. any other facts
+  createdAt        DateTime @default(now())
+  user             User     @relation(fields: [userId], references: [id])
+}
+
+
+model UserFollow {
+  id          String   @id @default(uuid())
+  follower    User     @relation("follower", fields: [followerId], references: [id])
+  followerId  String
+  following   User     @relation("following", fields: [followingId], references: [id])
+  followingId String
+  createdAt   DateTime @default(now())
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  sender      User     @relation("sender", fields: [senderId], references: [id])
+  senderId    String
+  recipient   User     @relation("recipient", fields: [recipientId], references: [id])
+  recipientId String
+  body        String   @db.Text
+  image       String?
+  createdAt   DateTime @default(now())
+}
+
+model Tweet {
+  id           String     @id @default(uuid())
+  userId       String
+  body         String     @db.Text
+  images       String[]
+  likeCount    Int        @default(0)
+  retweetCount Int        @default(0)
+  replyCount   Int        @default(0)
+  createdAt    DateTime   @default(now())
+  user         User       @relation(fields: [userId], references: [id])
+  likes        Like[]
+  retweets     Retweet[]
+  replies      Reply[]
+  Bookmark     Bookmark[]
+}
+
+model Retweet {
+  id          String   @id @default(uuid())
+  tweetId     String
+  userId      String
+  retweetDate DateTime @default(now())
+  tweet       Tweet    @relation(fields: [tweetId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  tweet     Tweet    @relation(fields: [tweetId], references: [id])
+  tweetId   String
+  createdAt DateTime @default(now())
+}
+
+model Reply {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  tweet     Tweet    @relation(fields: [tweetId], references: [id])
+  tweetId   String
+  body      String   @db.Text
+  images    String[]
+  createdAt DateTime @default(now())
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  tweet     Tweet    @relation(fields: [tweetId], references: [id])
+  tweetId   String
+  createdAt DateTime @default(now())
+}
+
+

@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body {
+  @apply bg-slate-200 text-black dark:bg-black dark:text-white;
+}
+button {
+  @apply transition-colors duration-150;
+}
+h2,h1,h3,h4 {
+  @apply truncate text-ellipsis 
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.bg-main {
+  @apply bg-slate-200 text-black dark:bg-black dark:text-white;
+}
+.bg-secondary {
+  @apply bg-slate-400 text-black dark:bg-slate-800    dark:text-white;
+}
+.bg-secondary-hover {
+  @apply hover:bg-slate-300  dark:hover:bg-slate-700;
+}
+.main-border {
+  @apply border-[#262A2D];
+}
+
+.tweet-hover {
+  @apply transition-colors duration-150 hover:bg-slate-300 dark:hover:bg-slate-900;
+}
+.sidebar-hover {
+  @apply transition-colors duration-150 hover:bg-slate-300 dark:hover:bg-[#1d1e23];
+}
+.hover-main {
+  @apply cursor-pointer transition-colors duration-150 hover:bg-slate-300 dark:hover:bg-slate-900;
+}
+.hover-options {
+  @apply cursor-pointer transition-colors duration-150 hover:bg-slate-400 dark:hover:bg-slate-800;
+}
+
+.text-main-accent {
+  @apply text-[#1d9bf0] dark:text-[#1d9bf0];
+}
+.text-primary {
+  @apply text-black  dark:text-white;
+}
+.text-secondary {
+  @apply text-[#536471] dark:text-[#71767B];
+}
+.bg-line-reply {
+  @apply bg-[#333639] dark:bg-[#333639];
+}
+.text-tweet {
+  @apply text-slate-900 dark:text-slate-300;
+}
+/* main-content-size */
+.mcz {
+  @apply mx-4 h-full sm:w-[600px];
+}
+.input {
+  text-align: center;
+  color: #fff;
+  transition-property: transform, opacity;
+  text-transform: linear;
+  transition-duration: 0.25s;
+}
+.sidebar-bg{
+@apply bg-[#16181C]
+}
